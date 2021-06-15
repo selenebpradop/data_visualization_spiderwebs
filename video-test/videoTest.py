@@ -1,9 +1,8 @@
 import csv
 import matplotlib.pyplot as plt
-import imageio
-import os
+import cv2
 
-with open('prueba.csv') as csv_file:
+with open('../gif-test/prueba.csv') as csv_file:
     csv_file = csv.reader(csv_file, delimiter=',')
 
     #skips the header
@@ -28,13 +27,16 @@ with open('prueba.csv') as csv_file:
 
         j += 1
 
-    #print(filenames)
-    
-    with imageio.get_writer('mygif.gif', mode='I') as writer:
-        for filename in filenames:
-            #print(filename)
-            image = imageio.imread(filename)
-            writer.append_data(image)
 
-    #for filename in set(filenames):
-        #os.remove(filename)
+    img_array = []
+    for filename in filenames:
+        img = cv2.imread(filename)
+        height, width, layers = img.shape
+        size = (width,height)
+        img_array.append(img)
+
+    out = cv2.VideoWriter('project.avi',cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
+
+    for i in range(len(img_array)):
+        out.write(img_array[i])
+    out.release()
