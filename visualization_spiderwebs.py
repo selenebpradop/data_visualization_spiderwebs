@@ -1,5 +1,5 @@
+# Import the libraries
 import numpy as np
-
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, RegularPolygon
 from matplotlib.path import Path
@@ -23,18 +23,18 @@ def radar_factory(num_vars, frame='circle'):
         Shape of frame surrounding axes.
 
     """
-    # calculate evenly-spaced axis angles
+    # Calculate evenly-spaced axis angles
     theta = np.linspace(0, 2*np.pi, num_vars, endpoint=False)
 
     class RadarAxes(PolarAxes):
 
         name = 'radar'
-        # use 1 line segment to connect specified points
+        # Use 1 line segment to connect specified points
         RESOLUTION = 1
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            # rotate plot such that the first axis is at the top
+            # Rotate plot such that the first axis is at the top
             self.set_theta_zero_location('N')
 
         def fill(self, *args, closed=True, **kwargs):
@@ -59,8 +59,7 @@ def radar_factory(num_vars, frame='circle'):
             self.set_thetagrids(np.degrees(theta), labels)
 
         def _gen_axes_patch(self):
-            # The Axes patch must be centered at (0.5, 0.5) and of radius 0.5
-            # in axes coordinates.
+            # The Axes patch must be centered at (0.5, 0.5) and of radius 0.5 in axes coordinates.
             if frame == 'circle':
                 return Circle((0.5, 0.5), 0.5)
             elif frame == 'polygon':
@@ -113,7 +112,7 @@ def example_data():
     data = [
         ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO', 'O3'],
         ('Basecase', [
-            [0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
+             [0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
             [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00],
             [0.01, 0.02, 0.85, 0.19, 0.05, 0.10, 0.00, 0.00, 0.00],
             [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00],
@@ -123,44 +122,60 @@ def example_data():
 
 
 if __name__ == '__main__':
-    N = 9
-    theta = radar_factory(N, frame='polygon')
-
+    # Set the number of lines that the spiderweb will have
+    N = 5
+    theta = radar_factory(N, frame='circle')
+    # Read the data
     data = example_data()
-    spoke_labels = data.pop(0)
-
+    # Delete the part that contain the names of the rows
+    data.pop(0)
+    # 'spoke_labels' contain the name of each line
+    spoke_labels = ['A','B','C','D','X']
+    # Draw the shape of the spiderweb
     fig, axs = plt.subplots(figsize=(9, 9), subplot_kw=dict(projection='radar'))
     fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
-
+    # 'colors' contain the colors of each spiderweb
     colors = ['b', 'r', 'g', 'm', 'y']
-    # Plot the four cases from the example data on separate axes
+    # Save in 'case_data' the data without []
     case_data = data.pop(0)
+    # Convert 'case_data' in a list
     case_data = list(case_data)
+    # Title contain the title of the spiderweb
     title = case_data[0]
+    # Save in 'case_data' the data without 'Basecase'
     case_data.pop(0)
-   # print(case_data[0][1])
-    prueba = len(case_data[0])
-  #  print("-...-")
-    print(prueba)
-    print("-...-")
+    # Calculate the number of data that each dataset contains
+    numsets = len(case_data[0])
+    # Save 'axs' in 'ax'
     ax = axs
-    ax.set_rgrids([0.2, 0.4, 0.6, 0.8])
+    # Set the length of the lines
+    lenspider = 4
+    # Se the labes in the lines
+    ax.set_rgrids([0.5, 1, 1.5, 2])
     ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1), horizontalalignment='center', verticalalignment='center')
-    i=0
-    for i in range(prueba):
+    b = []
+    # Normalize data
+    for i in range(numsets):
         a = case_data[0][i]
-        print(a)
-        ax.plot(theta, a, color=colors[i])
-        ax.fill(theta, a, facecolor=colors[i], alpha=0.25)
-        i = i+1
+        c = a[4]
+        nmin = min(a);
+        nmax = max(a);
+        r = nmax - nmin
+        x = (c-nmin)/r
+        y = lenspider*x
+        b.append(x)
+    # Draw the new lines in the spiderweb
+    ax.plot(theta, b, color=colors[0])
+    ax.fill(theta, b, facecolor=colors[0], alpha=0.25)
+    # Put the name of each line in the figure
     ax.set_varlabels(spoke_labels)
     
-    # add legend relative to top-left plot
+    # Add legend relative to top-left plot
     labels = ('Factor 1', 'Factor 2', 'Factor 3', 'Factor 4', 'Factor 5')
     legend = axs.legend(labels, loc=(0.9, .95), labelspacing=0.1, fontsize='small')
-
+    # Put the name of the figure
     fig.text(0.5, 0.965, '5-Factor Solution Profiles Across Four Scenarios',
              horizontalalignment='center', color='black', weight='bold',
              size='large')
-
+    # Show the figure
     plt.show()
