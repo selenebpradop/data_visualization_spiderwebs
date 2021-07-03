@@ -7,7 +7,7 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.projections import register_projection
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
-
+import math
 
 def radar_factory(num_vars, frame='circle'):
     """
@@ -120,62 +120,72 @@ def example_data():
     ]
     return data
 
+def create_spiderwebs(datasets, lenlines, numspiders, title, titles, spoke_labels, colors):
 
-if __name__ == '__main__':
-    # Set the number of lines that the spiderweb will have
-    N = 5
+    # Set the number of lines that each spiderweb will have
+    N = len(datasets)
     theta = radar_factory(N, frame='circle')
-    # Read the data
-    data = example_data()
-    # Delete the part that contain the names of the rows
-    data.pop(0)
-    # 'spoke_labels' contain the name of each line
-    spoke_labels = ['A','B','C','D','X']
+
+    if (numspiders%2==0):
+        numrows = 2
+        numcols = int(numspiders/2)
+    else:
+        numrows = 1
+        numcols = numspiders
     # Draw the shape of the spiderweb
-    fig, axs = plt.subplots(figsize=(9, 9), subplot_kw=dict(projection='radar'))
+    fig, axs = plt.subplots(figsize=(9, 9), nrows=numrows, ncols=numcols, subplot_kw=dict(projection='radar'))
     fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
-    # 'colors' contain the colors of each spiderweb
-    colors = ['b', 'r', 'g', 'm', 'y']
-    # Save in 'case_data' the data without []
-    case_data = data.pop(0)
-    # Convert 'case_data' in a list
-    case_data = list(case_data)
-    # Title contain the title of the spiderweb
-    title = case_data[0]
-    # Save in 'case_data' the data without 'Basecase'
-    case_data.pop(0)
-    # Calculate the number of data that each dataset contains
-    numsets = len(case_data[0])
-    # Save 'axs' in 'ax'
-    ax = axs
-    # Set the length of the lines
-    lenspider = 4
-    # Se the labes in the lines
-    ax.set_rgrids([0.5, 1, 1.5, 2])
-    ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1), horizontalalignment='center', verticalalignment='center')
-    b = []
-    # Normalize data
-    for i in range(numsets):
-        a = case_data[0][i]
-        c = a[4]
-        nmin = min(a);
-        nmax = max(a);
-        r = nmax - nmin
-        x = (c-nmin)/r
-        y = lenspider*x
-        b.append(x)
-    # Draw the new lines in the spiderweb
-    ax.plot(theta, b, color=colors[0])
-    ax.fill(theta, b, facecolor=colors[0], alpha=0.25)
-    # Put the name of each line in the figure
-    ax.set_varlabels(spoke_labels)
-    
-    # Add legend relative to top-left plot
-    labels = ('Factor 1', 'Factor 2', 'Factor 3', 'Factor 4', 'Factor 5')
-    legend = axs.legend(labels, loc=(0.9, .95), labelspacing=0.1, fontsize='small')
+    newn = 0.5
+    rgrids = []
+    for z in range(lenlines*2):
+        rgrids.append(newn)
+        newn = newn + 0.5
+    # Counter of the number of spiders
+    i=0
+    # Plot each case on separate axes
+    for ax, (titlespiderweb) in zip(axs.flat, titles):
+        # Put labels in the lines
+        ax.set_rgrids(rgrids)        
+        ax.set_title(titlespiderweb, weight='bold', size='medium', position=(0.5, 1.1), horizontalalignment='center', verticalalignment='center')
+        dataspider = []
+        # Normalize data
+        for y in range(N):
+            currentdata = datasets[y]
+            number = currentdata[i]
+            nmin = min(currentdata);
+            nmax = max(currentdata);
+            r = nmax - nmin
+            x = (number-nmin)/r
+            y = lenlines*x
+            dataspider.append(y)
+        # Draw the new lines in the spiderweb
+        ax.plot(theta, dataspider, color=colors[i])
+        ax.fill(theta, dataspider, facecolor=colors[i], alpha=0.25)
+        # Put the name of each line in the figure
+        ax.set_varlabels(spoke_labels)
+        # Increment the counter
+        i=i+1
+
     # Put the name of the figure
-    fig.text(0.5, 0.965, '5-Factor Solution Profiles Across Four Scenarios',
-             horizontalalignment='center', color='black', weight='bold',
-             size='large')
+    fig.text(0.5, 0.965, title, horizontalalignment='center', color='black', weight='bold', size='large')
     # Show the figure
     plt.show()
+
+    
+if __name__ == '__main__':
+    
+    # 'colors' contain the colors of each spiderweb
+    colors = ['b', 'r', 'g', 'm', 'y', 'y']
+    # Title contain the title of the spiderweb
+    title = 'Basecase'
+    # 'spoke_labels' contain the name of each line
+    spoke_labels = ['A','B','C','D','X']
+    titles = ['March2020', 'April2020', 'November2020', 'December2020', 'June2021', 'July2021']
+    data = [
+            [0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
+            [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00],
+            [0.01, 0.02, 0.85, 0.19, 0.05, 0.10, 0.00, 0.00, 0.00],
+            [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00],
+            [0.01, 0.01, 0.02, 0.71, 0.74, 0.70, 0.00, 0.00, 0.00]
+           ]
+    create_spiderwebs(data, 4, 6, title, titles, spoke_labels, colors)
