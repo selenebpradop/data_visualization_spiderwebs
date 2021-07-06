@@ -8,33 +8,61 @@ with open('prueba.csv') as csv_file:
 
     #skips the header
     next(csv_file)
-    
-    dataVal = []
+
+    '''
+    windowLength, t0, tn are parameters given by the user.
+    add boolean to switch between GIF and Video generation.
+    TODO: create a function that generates either a GIF or video.
+    '''
+    windowLength = 5
+    t0 = 2
+    tn = 30
+    dataY = []
+    dataX = []
+
+    #Stores the data from the csv as X and Y values
     for row in csv_file:
-        dataVal.append(int(row[1]))
+        dataY.append(int(row[1]))
+        dataX.append(int(row[0]))
 
     filenames = []
-    j = 0
+    j = 1
 
-    for i in dataVal:
-        plt.plot(dataVal[:j])
-        plt.ylim(min(dataVal)-(min(dataVal)*0.2), max(dataVal)+(max(dataVal)*0.2))
+    xMin = min(dataX)
+    xMax = max(dataX)
+    counter = 0
+    xInit = t0
+    xLimit = xInit + windowLength
+    dataNumber = t0 + 1
 
+    for i in range(t0, tn+1):
+
+        if counter >= windowLength:
+            xInit += 1
+            xLimit += 1
+
+        plt.plot(dataY[:dataNumber])
+        plt.ylim(min(dataY)-(min(dataY)*0.2), max(dataY)+(max(dataY)*0.2))
+        plt.xlim(xInit, xLimit)
+
+        #stores filename with the corresponding numbers
         filename = f'{j}.png'
         filenames.append(filename)
 
+        #saves the plot into an png file.
         plt.savefig(filename)
         plt.close()
 
+        dataNumber += 1
+        counter += 1
         j += 1
 
-    #print(filenames)
-    
     with imageio.get_writer('mygif.gif', mode='I') as writer:
+        # Generates a GIF using the filenames stores previusly
         for filename in filenames:
-            #print(filename)
             image = imageio.imread(filename)
             writer.append_data(image)
 
-    #for filename in set(filenames):
-        #os.remove(filename)
+    # Removes the PNG images tfrom the system
+    for filename in set(filenames):
+        os.remove(filename)
