@@ -120,11 +120,11 @@ def example_data():
     ]
     return data
 
-def create_spiderwebs(datasets, lenlines, numspiders, title, titles, spoke_labels, colors):
+def create_spiderwebs(datasets, lenlines, numspiders, title, titles, spoke_labels, colors, typeframe):
 
     # Set the number of lines that each spiderweb will have
     N = len(datasets)
-    theta = radar_factory(N, frame='circle')
+    theta = radar_factory(N, frame=typeframe)
 
     if (numspiders%2==0):
         numrows = 2
@@ -188,4 +188,4 @@ if __name__ == '__main__':
             [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00],
             [0.01, 0.01, 0.02, 0.71, 0.74, 0.70, 0.00, 0.00, 0.00]
            ]
-    create_spiderwebs(data, 4, 6, title, titles, spoke_labels, colors)
+    create_spiderwebs(data, 4, 6, title, titles, spoke_labels, colors, 'polygon')
