@@ -89,59 +89,57 @@ def radar_factory(num_vars, frame='circle'):
     return theta
 
 
-def example_data():
-    # The following data is from the Denver Aerosol Sources and Health study.
-    # See doi:10.1016/j.atmosenv.2008.12.017
-    #
-    # The data are pollution source profile estimates for five modeled
-    # pollution sources (e.g., cars, wood-burning, etc) that emit 7-9 chemical
-    # species. The radar charts are experimented with here to see if we can
-    # nicely visualize how the modeled source profiles change across four
-    # scenarios:
-    #  1) No gas-phase species present, just seven particulate counts on
-    #     Sulfate
-    #     Nitrate
-    #     Elemental Carbon (EC)
-    #     Organic Carbon fraction 1 (OC)
-    #     Organic Carbon fraction 2 (OC2)
-    #     Organic Carbon fraction 3 (OC3)
-    #     Pyrolized Organic Carbon (OP)
-    #  2)Inclusion of gas-phase specie carbon monoxide (CO)
-    #  3)Inclusion of gas-phase specie ozone (O3).
-    #  4)Inclusion of both gas-phase species is present...
-    data = [
-        ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO', 'O3'],
-        ('Basecase', [
-             [0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
-            [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00],
-            [0.01, 0.02, 0.85, 0.19, 0.05, 0.10, 0.00, 0.00, 0.00],
-            [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00],
-            [0.01, 0.01, 0.02, 0.71, 0.74, 0.70, 0.00, 0.00, 0.00]])
-    ]
-    return data
-
 def create_spiderwebs(datasets, lenlines, numspiders, title, titles, spoke_labels, colors, typeframe):
 
-    # Set the number of lines that each spiderweb will have
+    """
+    Create a radar chart.
+
+    This function receives parameters and with that a radar chart is created.
+
+    Parameters
+    ----------
+    datasets: list
+        A list that contains one list for each dataset.
+    lenlines: int
+        The length of the lines of the spiderweb.
+    numspiders: int
+        The number of spiderwebs to create.
+    title: String
+        The title of the figure.
+    titles: list
+        A list with the names of each spiderweb.
+    spoke_labels: list
+        A list with the names of each line of the spiderweb.
+    colors: list    
+        A list with the first letter of the color of each spiderweb [{'b', 'r', 'g', 'm', 'y'}].
+    typeframe: {'circle', 'polygon'}
+        A string with the name of the type of the Frame for the spiderwebs.
+    """
+
+
+    # Set the number of lines of each spiderweb
     N = len(datasets)
     theta = radar_factory(N, frame=typeframe)
-
+    # Set the number of columns and rows
     if (numspiders%2==0):
         numrows = 2
         numcols = int(numspiders/2)
     else:
         numrows = 1
         numcols = numspiders
+        
     # Draw the shape of the spiderweb
-    fig, axs = plt.subplots(figsize=(9, 9), nrows=numrows, ncols=numcols, subplot_kw=dict(projection='radar'))
-    fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
+    fig, axs = plt.subplots(figsize=(8, 8), nrows=numrows, ncols=numcols, subplot_kw=dict(projection='radar'))
+    fig.subplots_adjust(wspace=0.5, hspace=0.20, top=0.85, bottom=0.05)
     newn = 0.5
     rgrids = []
     for z in range(lenlines*2):
         rgrids.append(newn)
         newn = newn + 0.5
+
     # Counter of the number of spiders
     i=0
+
     # Plot each case on separate axes
     for ax, (titlespiderweb) in zip(axs.flat, titles):
         # Put labels in the lines
@@ -165,27 +163,12 @@ def create_spiderwebs(datasets, lenlines, numspiders, title, titles, spoke_label
         ax.set_varlabels(spoke_labels)
         # Increment the counter
         i=i+1
-
+        
     # Put the name of the figure
     fig.text(0.5, 0.965, title, horizontalalignment='center', color='black', weight='bold', size='large')
+
+    # Save the figure in an image with .pdf format
+    plt.savefig(title + '.pdf', format='pdf', transparent=True, dpi=1000)
+
     # Show the figure
     plt.show()
-
-    
-if __name__ == '__main__':
-    
-    # 'colors' contain the colors of each spiderweb
-    colors = ['b', 'r', 'g', 'm', 'y', 'y']
-    # Title contain the title of the spiderweb
-    title = 'Basecase'
-    # 'spoke_labels' contain the name of each line
-    spoke_labels = ['A','B','C','D','X']
-    titles = ['March2020', 'April2020', 'November2020', 'December2020', 'June2021', 'July2021']
-    data = [
-            [0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
-            [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00],
-            [0.01, 0.02, 0.85, 0.19, 0.05, 0.10, 0.00, 0.00, 0.00],
-            [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00],
-            [0.01, 0.01, 0.02, 0.71, 0.74, 0.70, 0.00, 0.00, 0.00]
-           ]
-    create_spiderwebs(data, 4, 6, title, titles, spoke_labels, colors, 'polygon')
