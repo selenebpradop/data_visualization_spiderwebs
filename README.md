@@ -1,6 +1,6 @@
 # data_visualization_spiderwebs
 
-The function spiderwebs needs the following parameter:
+The function create_spiderwebs needs the following parameter:
 - A list that contains one list for each dataset.
 - The length of the lines of the spiderweb.
 - The number of spiderwebs to create.
